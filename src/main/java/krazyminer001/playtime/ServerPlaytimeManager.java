@@ -1,7 +1,9 @@
 package krazyminer001.playtime;
 
+import krazyminer001.playtime.tracking.PlayerPlaytimeTracker;
 import net.fabricmc.api.ModInitializer;
-
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +15,12 @@ public class ServerPlaytimeManager implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+	public static PlayerPlaytimeTracker PLAYTIME_TRACKER;
+
 	@Override
 	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
+		ServerLifecycleEvents.SERVER_STARTED.register((minecraftServer -> PLAYTIME_TRACKER = new PlayerPlaytimeTracker(minecraftServer)));
 
-		LOGGER.info("Hello Fabric world!");
+		ServerTickEvents.END_SERVER_TICK.register((PLAYTIME_TRACKER::tick));
 	}
 }
