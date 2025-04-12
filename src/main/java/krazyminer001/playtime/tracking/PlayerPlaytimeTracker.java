@@ -63,6 +63,7 @@ public class PlayerPlaytimeTracker extends PersistentState {
 
     public void setPlaytime(UUID uuid, int ticks) {
         playerPlaytimes.put(uuid, ticks);
+        markDirty();
     }
 
     public void tick(MinecraftServer server) {
@@ -79,6 +80,8 @@ public class PlayerPlaytimeTracker extends PersistentState {
             if (nonTrackingPeriods.stream().noneMatch(timePeriod -> timePeriod.isWithin(now)))
                 playerPlaytimes.computeIfPresent(uuid, (key, playtime) -> ++playtime);
         });
+
+        markDirty();
 
         Optional<TimePeriod> soonestTimePeriod = nonTrackingPeriods.stream().min(Comparator.comparing(period -> period.until(now)));
 
