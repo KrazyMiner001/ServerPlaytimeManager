@@ -3,13 +3,12 @@
 	"id": "playtime",
 	"version": "${version}",
 	"name": "ServerPlaytimeManager",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "A mod to help manage daily playtime on a server to prevent burnout.",
 	"authors": [
-		"Me!"
+		"KrazyMiner001"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/krazyMiner001/ServerPlaytimeManager"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/playtime/icon.png",
@@ -38,8 +37,5 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"yet_another_config_lib_v3": ">=3.6.6"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }
