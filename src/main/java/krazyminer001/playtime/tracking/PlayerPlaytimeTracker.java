@@ -1,35 +1,66 @@
 package krazyminer001.playtime.tracking;
 
+import krazyminer001.playtime.ServerPlaytimeManager;
 import krazyminer001.playtime.config.Config;
 import krazyminer001.playtime.time.TimePeriod;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
+import net.minecraft.world.PersistentState;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-public class PlayerPlaytimeTracker {
-    private final MinecraftServer minecraftServer;
-    private final Map<UUID, Integer> playerPlaytimes = new HashMap<>();
+public class PlayerPlaytimeTracker extends PersistentState {
+    private final Map<UUID, Integer> playerPlaytimes;
     private LocalDate cachedDate;
     private final List<TimePeriod> nonTrackingPeriods;
 
-    public PlayerPlaytimeTracker(MinecraftServer server) {
-        minecraftServer = server;
-        cachedDate = LocalDate.now(ZoneOffset.of(Config.HANDLER.instance().timezone));
+    private static final Type<PlayerPlaytimeTracker> type = new Type<>(
+            PlayerPlaytimeTracker::createNew,
+            PlayerPlaytimeTracker::createFromNbt,
+            null
+    );
+
+    private PlayerPlaytimeTracker() {
+        playerPlaytimes = new HashMap<>();
         nonTrackingPeriods = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods).map(TimePeriod::new).toList();
+    }
+    
+    public static PlayerPlaytimeTracker createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
+        PlayerPlaytimeTracker playerPlaytimeTracker = new PlayerPlaytimeTracker();
+        playerPlaytimeTracker.cachedDate = LocalDate.parse(tag.getString("cachedData"), DateTimeFormatter.ISO_DATE);
+        NbtCompound playtimes = tag.getCompound("playerPlaytimes");
+        playtimes.getKeys().forEach(key -> playerPlaytimeTracker.playerPlaytimes.put(UUID.fromString(key), playtimes.getInt(key)));
+        return playerPlaytimeTracker;
+    }
+    
+    public static PlayerPlaytimeTracker createNew() {
+        PlayerPlaytimeTracker playerPlaytimeTracker = new PlayerPlaytimeTracker();
+        playerPlaytimeTracker.cachedDate = LocalDate.now(Config.getZoneOffset());
+        return playerPlaytimeTracker;
+    }
+
+    public static PlayerPlaytimeTracker getServerState(MinecraftServer server) {
+        ServerWorld serverWorld = server.getWorld(ServerWorld.OVERWORLD);
+        assert serverWorld != null;
+
+        PlayerPlaytimeTracker playerPlaytimeTracker = serverWorld.getPersistentStateManager().getOrCreate(type, ServerPlaytimeManager.MOD_ID);
+        playerPlaytimeTracker.markDirty();
+
+        return playerPlaytimeTracker;
     }
 
     public void tick(MinecraftServer server) {
-        if (!minecraftServer.equals(server)) return;
+        LocalTime now = LocalTime.now(Config.getZoneOffset());
 
-        LocalTime now = LocalTime.now();
-
-        if (cachedDate.isBefore(LocalDate.now(ZoneOffset.of(Config.HANDLER.instance().timezone)))) {
+        if (cachedDate.isBefore(LocalDate.now(Config.getZoneOffset()))) {
             playerPlaytimes.clear();
-            cachedDate = LocalDate.now(ZoneOffset.of(Config.HANDLER.instance().timezone));
+            cachedDate = LocalDate.now(Config.getZoneOffset());
         }
 
         server.getPlayerManager().getPlayerList().forEach(player -> {
@@ -53,5 +84,14 @@ public class PlayerPlaytimeTracker {
                 }
             });
         }
+    }
+
+    @Override
+    public NbtCompound writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+        nbt.putString("cachedDate", cachedDate.format(DateTimeFormatter.ISO_DATE));
+        NbtCompound playtimesMap = new NbtCompound();
+        playerPlaytimes.forEach((uuid, playtime) -> playtimesMap.putInt(uuid.toString(), playtime));
+        nbt.put("playerPlaytimes", playtimesMap);
+        return nbt;
     }
 }

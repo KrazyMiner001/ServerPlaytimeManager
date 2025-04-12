@@ -21,7 +21,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 	public void onInitialize() {
 		Config.HANDLER.load();
 
-		ServerLifecycleEvents.SERVER_STARTED.register((minecraftServer -> PLAYTIME_TRACKER = new PlayerPlaytimeTracker(minecraftServer)));
+		ServerLifecycleEvents.SERVER_STARTED.register((minecraftServer -> PLAYTIME_TRACKER = PlayerPlaytimeTracker.getServerState(minecraftServer)));
 
 		ServerTickEvents.END_SERVER_TICK.register(minecraftServer -> {if (PLAYTIME_TRACKER != null) PLAYTIME_TRACKER.tick(minecraftServer);});
 	}

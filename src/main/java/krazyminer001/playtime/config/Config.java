@@ -8,6 +8,8 @@ import krazyminer001.playtime.ServerPlaytimeManager;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
 
+import java.time.ZoneOffset;
+
 public class Config {
     public static ConfigClassHandler<Config> HANDLER = ConfigClassHandler.createBuilder(Config.class)
             .id(Identifier.of(ServerPlaytimeManager.MOD_ID, "config"))
@@ -17,6 +19,10 @@ public class Config {
                     .setJson5(true)
                     .build())
             .build();
+
+    public static ZoneOffset getZoneOffset() {
+        return ZoneOffset.of(HANDLER.instance().timezone);
+    }
 
     @SerialEntry(comment = "Timezone offset from UTC\nAccepted formats: Z (for UTC), +h, +hh, +hh:mm, -hh:mm, +hhmm, -hhmm, +hh:mm:ss, -hh:mm:ss, +hhmmss, -hhmmss")
     public String timezone = "Z";
