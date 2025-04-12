@@ -33,7 +33,7 @@ public class PlayerPlaytimeTracker extends PersistentState {
     
     public static PlayerPlaytimeTracker createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
         PlayerPlaytimeTracker playerPlaytimeTracker = new PlayerPlaytimeTracker();
-        playerPlaytimeTracker.cachedDate = LocalDate.parse(tag.getString("cachedData"), DateTimeFormatter.ISO_DATE);
+        playerPlaytimeTracker.cachedDate = LocalDate.parse(tag.getString("cachedDate"), DateTimeFormatter.ISO_DATE);
         NbtCompound playtimes = tag.getCompound("playerPlaytimes");
         playtimes.getKeys().forEach(key -> playerPlaytimeTracker.playerPlaytimes.put(UUID.fromString(key), playtimes.getInt(key)));
         return playerPlaytimeTracker;
