@@ -33,11 +33,5 @@ public class Config {
     @SerialEntry(comment = "Maximum time a player can have outside of non tracking windows\nTime is measured in ticks\nUse -1 for infinite")
     public int maxTime = -1;
 
-    public static class TimePeriodString {
-        @SerialEntry
-        public String startTime;
-
-        @SerialEntry
-        public String endTime;
-    }
+    public record TimePeriodString(@SerialEntry String startTime, @SerialEntry String endTime) {}
 }

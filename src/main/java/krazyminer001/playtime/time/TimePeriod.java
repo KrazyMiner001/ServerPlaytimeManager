@@ -12,8 +12,8 @@ public class TimePeriod {
     private final LocalTime endTime;
 
     public TimePeriod(Config.TimePeriodString timePeriodString) {
-        this.startTime = LocalTime.from(DateTimeFormatter.ISO_OFFSET_TIME.parse(timePeriodString.startTime));
-        this.endTime = LocalTime.from(DateTimeFormatter.ISO_OFFSET_TIME.parse(timePeriodString.endTime));
+        this.startTime = LocalTime.from(DateTimeFormatter.ISO_OFFSET_TIME.parse(timePeriodString.startTime()));
+        this.endTime = LocalTime.from(DateTimeFormatter.ISO_OFFSET_TIME.parse(timePeriodString.endTime()));
     }
 
     public boolean isWithin(LocalTime time) {
