@@ -80,6 +80,35 @@ public class ServerPlaytimeManager implements ModInitializer {
 									)
 							)
 					)
+					.then(literal("config")
+							.requires(source -> source.hasPermissionLevel(2))
+							.then(literal("reload")
+									.executes(context -> {
+										Config.HANDLER.load();
+										return 1;
+									})
+							)
+							.then(literal("set")
+									.then(literal("maxTime")
+											.then(argument("ticks", IntegerArgumentType.integer())
+													.executes(context -> {
+														Config.HANDLER.instance().maxTime = IntegerArgumentType.getInteger(context, "ticks");
+														Config.HANDLER.save();
+														Config.HANDLER.load();
+														return 1;
+													})
+											)
+									)
+							)
+							.then(literal("get")
+									.then(literal("maxTime")
+											.executes(context -> {
+												context.getSource().sendFeedback(() -> Text.literal(String.valueOf(Config.HANDLER.instance().maxTime)), false);
+												return 1;
+											})
+									)
+							)
+					)
 			);
 		});
 	}
