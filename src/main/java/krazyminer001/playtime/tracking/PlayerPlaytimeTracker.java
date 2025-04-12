@@ -10,9 +10,11 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.world.PersistentState;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 public class PlayerPlaytimeTracker extends PersistentState {
@@ -53,6 +55,14 @@ public class PlayerPlaytimeTracker extends PersistentState {
         playerPlaytimeTracker.markDirty();
 
         return playerPlaytimeTracker;
+    }
+
+    public Duration getPlaytime(UUID uuid) {
+        return Duration.of(playerPlaytimes.get(uuid) * 50, ChronoUnit.MILLIS);
+    }
+
+    public void setPlaytime(UUID uuid, int ticks) {
+        playerPlaytimes.put(uuid, ticks);
     }
 
     public void tick(MinecraftServer server) {
