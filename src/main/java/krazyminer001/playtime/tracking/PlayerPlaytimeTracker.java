@@ -16,6 +16,7 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PlayerPlaytimeTracker extends PersistentState {
     private final Map<UUID, Integer> playerPlaytimes;
@@ -30,7 +31,12 @@ public class PlayerPlaytimeTracker extends PersistentState {
 
     private PlayerPlaytimeTracker() {
         playerPlaytimes = new HashMap<>();
-        nonTrackingPeriods = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods).map(TimePeriod::new).toList();
+        nonTrackingPeriods = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods).map(TimePeriod::new).collect(Collectors.toList());
+    }
+
+    public void reload() {
+        nonTrackingPeriods.clear();
+        nonTrackingPeriods.addAll(Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods).map(TimePeriod::new).toList());
     }
     
     public static PlayerPlaytimeTracker createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {

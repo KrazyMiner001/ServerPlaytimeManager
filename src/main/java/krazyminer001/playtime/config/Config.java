@@ -33,5 +33,31 @@ public class Config {
     @SerialEntry(comment = "Maximum time a player can have outside of non tracking windows\nTime is measured in ticks\nUse -1 for infinite")
     public int maxTime = -1;
 
-    public record TimePeriodString(@SerialEntry String startTime, @SerialEntry String endTime) {}
+    public record TimePeriodString(@SerialEntry String startTime, @SerialEntry String endTime) {
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof TimePeriodString(String otherStartTime, String otherEndTime))) return false;
+
+            return this.endTime.equals(otherStartTime) && this.startTime.equals(otherEndTime);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = startTime.hashCode();
+            result = 31 * result + endTime.hashCode();
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "TimePeriodString{" +
+                    "startTime='" + startTime + '\'' +
+                    ", endTime='" + endTime + '\'' +
+                    '}';
+        }
+
+        public String display() {
+            return "startTime: " + startTime + ", endTime: " + endTime;
+        }
+    }
 }

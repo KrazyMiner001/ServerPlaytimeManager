@@ -2,6 +2,7 @@ package krazyminer001.playtime;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import krazyminer001.playtime.config.Config;
 import krazyminer001.playtime.tracking.PlayerPlaytimeTracker;
 import net.fabricmc.api.ModInitializer;
@@ -10,10 +11,15 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.text.Text;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Stream;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -85,6 +91,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 							.then(literal("reload")
 									.executes(context -> {
 										Config.HANDLER.load();
+										PLAYTIME_TRACKER.reload();
 										return 1;
 									})
 							)
@@ -104,6 +111,116 @@ public class ServerPlaytimeManager implements ModInitializer {
 									.then(literal("maxTime")
 											.executes(context -> {
 												context.getSource().sendFeedback(() -> Text.literal(String.valueOf(Config.HANDLER.instance().maxTime)), false);
+												return 1;
+											})
+									)
+							)
+							.then(literal("timewindows")
+									.then(literal("add")
+											.then(argument("startTime", StringArgumentType.word())
+													.then(argument("endTime", StringArgumentType.word())
+															.executes(context -> {
+																try {
+																	DateTimeFormatter.ISO_OFFSET_TIME.parse(StringArgumentType.getString(context, "startTime"));
+																} catch (DateTimeParseException e) {
+																	context
+																			.getSource()
+																			.sendFeedback(
+																					() -> Text.literal("Invalied startTime: " + e.getMessage()),
+																					false
+																			);
+																	return 0;
+																}
+																try {
+																	DateTimeFormatter.ISO_OFFSET_TIME.parse(StringArgumentType.getString(context, "endTime"));
+																} catch (DateTimeParseException e) {
+																	context
+																			.getSource()
+																			.sendFeedback(
+																					() -> Text.literal("Invalied endTime: " + e.getMessage()),
+																					false
+																			);
+																	return 0;
+																}
+
+																Config.HANDLER.instance().nonTrackingPeriods =
+																		ArrayUtils.add(
+																					Config.HANDLER.instance().nonTrackingPeriods,
+																					new Config.TimePeriodString(
+																							StringArgumentType.getString(context, "startTime"),
+																							StringArgumentType.getString(context, "endTime")
+																					)
+																				);
+
+																Config.HANDLER.save();
+																PLAYTIME_TRACKER.reload();
+																return 1;
+															})
+													)
+											)
+									)
+									.then(literal("remove")
+											.then(argument("startTime", StringArgumentType.word())
+													.then(argument("endTime", StringArgumentType.word())
+															.executes(context -> {
+																final String startTime = StringArgumentType.getString(context, "startTime");
+																final String endTime = StringArgumentType.getString(context, "endTime");
+
+																try {
+																	DateTimeFormatter.ISO_OFFSET_TIME.parse(startTime);
+																} catch (DateTimeParseException e) {
+																	context
+																			.getSource()
+																			.sendFeedback(
+																					() -> Text.literal("Invalied startTime: " + e.getMessage()),
+																					false
+																			);
+																	return 0;
+																}
+																try {
+																	DateTimeFormatter.ISO_OFFSET_TIME.parse(endTime);
+																} catch (DateTimeParseException e) {
+																	context
+																			.getSource()
+																			.sendFeedback(
+																					() -> Text.literal("Invalied endTime: " + e.getMessage()),
+																					false
+																			);
+																	return 0;
+																}
+
+																Stream<Config.TimePeriodString> times = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods);
+																if (times.noneMatch((time -> time.equals(new Config.TimePeriodString(startTime, endTime))))) {
+																	context
+																			.getSource()
+																			.sendFeedback(
+																					() -> Text.literal("There is no period defined by startTime: " + startTime + " and endTime: " + endTime),
+																					false
+																			);
+																	return 0;
+																}
+
+																times = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods);
+
+																Config.HANDLER.instance().nonTrackingPeriods = times.filter(time -> !time.equals(new Config.TimePeriodString(startTime, endTime))).toArray(Config.TimePeriodString[]::new);
+
+																Config.HANDLER.save();
+																PLAYTIME_TRACKER.reload();
+																return 1;
+															})
+													)
+											)
+									)
+									.then(literal("list")
+											.executes(context -> {
+												Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods)
+														.forEach(period -> context
+                                                                .getSource()
+                                                                .sendFeedback(
+                                                                        () -> Text.literal(period.display()),
+                                                                        false
+                                                                ));
+
 												return 1;
 											})
 									)
