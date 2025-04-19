@@ -15,10 +15,17 @@ public class ServerPlaytimeManagerClient implements ClientModInitializer {
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("foo_client")
 				.executes(context -> {
 					MinecraftClient mc = MinecraftClient.getInstance();
-					Screen screen = context.getSource().hasPermissionLevel(2) ? new AdminPlaytimeScreen() : new PlaytimeScreen();
+					Screen screen = new PlaytimeScreen();
 					mc.send(() -> mc.setScreen(screen));
 					return 1;
-				}
-				)));
+				})
+				.then(ClientCommandManager.literal("admin")
+						.requires((source) -> source.hasPermissionLevel(3))
+						.executes(context -> {
+							MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new AdminPlaytimeScreen()));
+							return 1;
+						})
+				)
+		));
 	}
 }
