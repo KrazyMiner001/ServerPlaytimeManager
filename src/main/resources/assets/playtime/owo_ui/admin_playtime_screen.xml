@@ -1,0 +1,82 @@
+<owo-ui xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/wisp-forest/owo-lib/1.20/owo-ui.xsd">
+    <components>
+        <flow-layout direction="vertical">
+            <children>
+                <template name="time-period">
+                    <start-time>Hello</start-time>
+                </template>
+
+                <label>
+                    <text>hi</text>
+                    <vertical-text-alignment>top</vertical-text-alignment>
+                </label>
+            </children>
+
+            <padding>
+                <all>
+                    10
+                </all>
+            </padding>
+
+            <horizontal-alignment>center</horizontal-alignment>
+            <vertical-alignment>center</vertical-alignment>
+
+            <surface>
+                <vanilla-translucent/>
+            </surface>
+        </flow-layout>
+    </components>
+    <templates>
+        <time-period>
+            <flow-layout direction="vertical">
+                <children>
+                    <template name="labeled-text-box">
+                        <label-text>Start Time</label-text>
+                        <text>HI</text>
+                    </template>
+                </children>
+
+                <surface>
+                    <outline>
+                        gray
+                    </outline>
+                </surface>
+
+                <padding>
+                        <all>5</all>
+                </padding>
+            </flow-layout>
+        </time-period>
+        <labeled-text-box>
+            <flow-layout direction="horizontal">
+                <children>
+                    <label>
+                        <text>
+                            {{label-text}}
+                        </text>
+                        <horizontal-text-alignment>center</horizontal-text-alignment>
+                        <vertical-text-alignment>top</vertical-text-alignment>
+                        <max-width>80</max-width>
+                    </label>
+                    <text-box>
+                        <text>{{text}}</text>
+                        <sizing>
+                            <horizontal method="fixed">80</horizontal>
+                            <vertical method="fixed">20</vertical>
+                        </sizing>
+                    </text-box>
+                </children>
+
+                <surface>
+                    <outline>dark-gray</outline>
+                </surface>
+
+                <sizing>
+                    <horizontal method="fixed">200</horizontal>
+                    <vertical method="fixed">30</vertical>
+                </sizing>
+            </flow-layout>
+        </labeled-text-box>
+    </templates>
+</owo-ui>

@@ -15,6 +15,11 @@ repositories {
 		name 'Xander Maven'
 		url 'https://maven.isxander.dev/releases'
 	}
+
+	maven {
+		name 'Wispforest Maven'
+		url 'https://maven.wispforest.io/releases/'
+	}
 }
 
 loom {
@@ -43,6 +48,9 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+
+	modImplementation "io.wispforest:owo-lib:${project.owo_version}"
+	include "io.wispforest:owo-sentinel:${project.owo_version}"
 }
 
 processResources {

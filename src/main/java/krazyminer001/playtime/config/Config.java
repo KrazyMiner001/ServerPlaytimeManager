@@ -7,6 +7,7 @@ import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import krazyminer001.playtime.ServerPlaytimeManager;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.ZoneOffset;
 
@@ -38,7 +39,7 @@ public class Config {
         public boolean equals(Object o) {
             if (!(o instanceof TimePeriodString(String otherStartTime, String otherEndTime))) return false;
 
-            return this.endTime.equals(otherStartTime) && this.startTime.equals(otherEndTime);
+            return this.startTime.equals(otherStartTime) && this.endTime.equals(otherEndTime);
         }
 
         @Override
@@ -49,7 +50,7 @@ public class Config {
         }
 
         @Override
-        public String toString() {
+        public @NotNull String toString() {
             return "TimePeriodString{" +
                     "startTime='" + startTime + '\'' +
                     ", endTime='" + endTime + '\'' +
