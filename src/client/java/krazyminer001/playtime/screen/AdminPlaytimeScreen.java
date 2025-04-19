@@ -37,9 +37,9 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
 
         ArrayList<Config.TimePeriodString> timePeriodStrings = new ArrayList<>(Arrays.asList(Config.HANDLER.instance().nonTrackingPeriods));
 
+        //region Time Windows
         FlowLayout timeWindows = (FlowLayout) Containers.verticalFlow(Sizing.content(), Sizing.content())
                         .padding(Insets.of(5));
-
 
         timePeriodStrings.stream()
                 .map(timePeriodString ->
@@ -121,6 +121,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                 .surface(Surface.outline(0xFFA0A0A0).and(Surface.flat(0x50505050)))
                                 .margins(Insets.of(5))
                 ));
+        //endregion
 
         rootComponent
                 .child(

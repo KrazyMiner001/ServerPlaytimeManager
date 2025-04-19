@@ -2,8 +2,7 @@ package krazyminer001.playtime.time;
 
 import krazyminer001.playtime.config.Config;
 
-import java.time.Duration;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
@@ -12,8 +11,8 @@ public class TimePeriod {
     private final LocalTime endTime;
 
     public TimePeriod(Config.TimePeriodString timePeriodString) {
-        this.startTime = LocalTime.from(DateTimeFormatter.ISO_OFFSET_TIME.parse(timePeriodString.startTime()));
-        this.endTime = LocalTime.from(DateTimeFormatter.ISO_OFFSET_TIME.parse(timePeriodString.endTime()));
+        this.startTime = OffsetTime.parse(timePeriodString.startTime()).withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toLocalTime();
+        this.endTime = OffsetTime.parse(timePeriodString.endTime()).withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toLocalTime();
     }
 
     public boolean isWithin(LocalTime time) {
