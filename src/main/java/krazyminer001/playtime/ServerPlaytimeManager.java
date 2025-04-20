@@ -4,11 +4,14 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import krazyminer001.playtime.config.Config;
+import krazyminer001.playtime.networking.*;
 import krazyminer001.playtime.tracking.PlayerPlaytimeTracker;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.text.Text;
 import org.apache.commons.lang3.ArrayUtils;
@@ -227,6 +230,34 @@ public class ServerPlaytimeManager implements ModInitializer {
 							)
 					)
 			);
+		});
+
+		PayloadTypeRegistry.playC2S().register(RequestUserPlaytimePacket.ID, RequestUserPlaytimePacket.CODEC);
+		PayloadTypeRegistry.playC2S().register(RequestTimeWindowsPacket.ID, RequestTimeWindowsPacket.CODEC);
+		PayloadTypeRegistry.playC2S().register(ChangeTimeWindowPacket.ID, ChangeTimeWindowPacket.CODEC);
+
+		PayloadTypeRegistry.playS2C().register(SendUserPlaytimePacket.ID, SendUserPlaytimePacket.CODEC);
+		PayloadTypeRegistry.playS2C().register(SendTimeWindowsPacket.ID, SendTimeWindowsPacket.CODEC);
+
+		ServerPlayNetworking.registerGlobalReceiver(RequestUserPlaytimePacket.ID, (payload, context) ->
+				context.responseSender().sendPacket(new SendUserPlaytimePacket(PLAYTIME_TRACKER.getPlaytimeTicks(context.player().getUuid())))
+		);
+		ServerPlayNetworking.registerGlobalReceiver(RequestTimeWindowsPacket.ID, (payload, context) ->
+				context.responseSender().sendPacket(new SendTimeWindowsPacket(Arrays.asList(Config.HANDLER.instance().nonTrackingPeriods)))
+		);
+		ServerPlayNetworking.registerGlobalReceiver(ChangeTimeWindowPacket.ID, (payload, context) -> {
+			if (context.player().hasPermissionLevel(3)) {
+				if (Config.HANDLER.instance().nonTrackingPeriods.length > payload.index()) {
+					Config.HANDLER.instance().nonTrackingPeriods[payload.index()] = payload.timePeriodString();
+					Config.HANDLER.save();
+				} else if (Config.HANDLER.instance().nonTrackingPeriods.length == payload.index()) {
+					Config.HANDLER.instance().nonTrackingPeriods = Arrays.copyOf(Config.HANDLER.instance().nonTrackingPeriods, payload.index());
+					Config.HANDLER.instance().nonTrackingPeriods[payload.index()] = payload.timePeriodString();
+					Config.HANDLER.save();
+				} else {
+					context.player().sendMessage(Text.literal("Invalid time period change, the time periods may have changed after you opened your screen").withColor(0xFF0000));
+				}
+			}
 		});
 	}
 }

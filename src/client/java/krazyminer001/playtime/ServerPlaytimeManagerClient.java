@@ -1,13 +1,18 @@
 package krazyminer001.playtime;
 
 import io.wispforest.owo.ui.parsing.UIParsing;
+import krazyminer001.playtime.networking.SendTimeWindowsPacket;
+import krazyminer001.playtime.networking.SendUserPlaytimePacket;
 import krazyminer001.playtime.screen.AdminPlaytimeScreen;
 import krazyminer001.playtime.screen.PlaytimeScreen;
 import krazyminer001.playtime.screen.component.UpdatableLabelComponent;
+import krazyminer001.playtime.tracking.ClientServerDataCache;
 import krazyminer001.playtime.util.IdentifierHelper;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -33,5 +38,15 @@ public class ServerPlaytimeManagerClient implements ClientModInitializer {
 						})
 				)
 		));
+
+		ClientTickEvents.END_WORLD_TICK.register((minecraftClient -> ClientServerDataCache.playtime++));
+
+		ClientPlayNetworking.registerGlobalReceiver(SendUserPlaytimePacket.ID, (sendUserPlaytimePacket, context) ->
+			ClientServerDataCache.playtime = sendUserPlaytimePacket.playtime()
+		);
+		ClientPlayNetworking.registerGlobalReceiver(SendTimeWindowsPacket.ID, (sendTimeWindowsPacket, context) -> {
+				ClientServerDataCache.timePeriodStrings = sendTimeWindowsPacket.timePeriods();
+				ClientServerDataCache.timePeriodStringDirty = false;
+		});
 	}
 }

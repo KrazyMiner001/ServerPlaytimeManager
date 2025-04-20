@@ -67,6 +67,10 @@ public class PlayerPlaytimeTracker extends PersistentState {
         return Duration.of(playerPlaytimes.get(uuid) * 50, ChronoUnit.MILLIS);
     }
 
+    public int getPlaytimeTicks(UUID uuid) {
+        return playerPlaytimes.get(uuid);
+    }
+
     public void setPlaytime(UUID uuid, int ticks) {
         playerPlaytimes.put(uuid, ticks);
         markDirty();

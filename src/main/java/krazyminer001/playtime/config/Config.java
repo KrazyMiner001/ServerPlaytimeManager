@@ -6,6 +6,9 @@ import dev.isxander.yacl3.config.v2.api.SerialEntry;
 import dev.isxander.yacl3.config.v2.api.serializer.GsonConfigSerializerBuilder;
 import krazyminer001.playtime.ServerPlaytimeManager;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,10 +34,16 @@ public class Config {
     @SerialEntry(comment = "Periods where time is not counted\nFormatted as a time with offset in accordance with ISO 8601")
     public TimePeriodString[] nonTrackingPeriods = new TimePeriodString[]{};
 
-    @SerialEntry(comment = "Maximum time a player can have outside of non tracking windows\nTime is measured in ticks\nUse -1 for infinite")
+    @SerialEntry(comment = "Maximum time a player can have outside of non tracking timePeriods\nTime is measured in ticks\nUse -1 for infinite")
     public int maxTime = -1;
 
     public record TimePeriodString(@SerialEntry String startTime, @SerialEntry String endTime) {
+        public static final PacketCodec<RegistryByteBuf, TimePeriodString> PACKET_CODEC = PacketCodec.tuple(
+                PacketCodecs.STRING, TimePeriodString::startTime,
+                PacketCodecs.STRING, TimePeriodString::endTime,
+                TimePeriodString::new
+        );
+
         @Override
         public boolean equals(Object o) {
             if (!(o instanceof TimePeriodString(String otherStartTime, String otherEndTime))) return false;

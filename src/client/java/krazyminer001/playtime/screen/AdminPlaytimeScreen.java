@@ -7,6 +7,10 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import krazyminer001.playtime.config.Config;
+import krazyminer001.playtime.networking.ChangeTimeWindowPacket;
+import krazyminer001.playtime.networking.RequestTimeWindowsPacket;
+import krazyminer001.playtime.tracking.ClientServerDataCache;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +21,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
 
@@ -29,13 +32,19 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
 
     @Override
     protected void build(FlowLayout rootComponent) {
+        ClientPlayNetworking.send(new RequestTimeWindowsPacket());
+        if (ClientServerDataCache.timePeriodStringDirty) {
+            assert this.client != null;
+            this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
+        }
+
         rootComponent
                 .surface(Surface.VANILLA_TRANSLUCENT)
                 .horizontalAlignment(HorizontalAlignment.CENTER)
                 .verticalAlignment(VerticalAlignment.CENTER)
                 .padding(Insets.of(5));
 
-        ArrayList<Config.TimePeriodString> timePeriodStrings = new ArrayList<>(Arrays.asList(Config.HANDLER.instance().nonTrackingPeriods));
+        ArrayList<Config.TimePeriodString> timePeriodStrings = new ArrayList<>(ClientServerDataCache.timePeriodStrings);
 
         //region Time Windows
         FlowLayout timeWindows = (FlowLayout) Containers.verticalFlow(Sizing.content(), Sizing.content())
@@ -103,8 +112,8 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                                                 endTime
                                                                         );
 
-                                                                        Config.HANDLER.instance().nonTrackingPeriods[indexedLocalTimePair.index] = timePeriodString;
-                                                                        Config.HANDLER.save();
+                                                                        ClientPlayNetworking.send(new ChangeTimeWindowPacket(indexedLocalTimePair.index, timePeriodString));
+                                                                        ClientServerDataCache.timePeriodStringDirty = true;
                                                                     } catch (DateTimeParseException e) {
                                                                         assert this.client.player != null;
                                                                         this.client.player.sendMessage(Text.literal("Invalid start or end time").withColor(0xFF0000));
