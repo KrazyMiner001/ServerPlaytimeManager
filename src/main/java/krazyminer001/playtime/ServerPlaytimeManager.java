@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Stream;
 
 import static net.minecraft.server.command.CommandManager.argument;
@@ -235,6 +236,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(RequestUserPlaytimePacket.ID, RequestUserPlaytimePacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(RequestTimeWindowsPacket.ID, RequestTimeWindowsPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(ChangeTimeWindowPacket.ID, ChangeTimeWindowPacket.CODEC);
+		PayloadTypeRegistry.playC2S().register(RemoveTimeWindowPacket.ID, RemoveTimeWindowPacket.CODEC);
 
 		PayloadTypeRegistry.playS2C().register(SendUserPlaytimePacket.ID, SendUserPlaytimePacket.CODEC);
 		PayloadTypeRegistry.playS2C().register(SendTimeWindowsPacket.ID, SendTimeWindowsPacket.CODEC);
@@ -250,14 +252,19 @@ public class ServerPlaytimeManager implements ModInitializer {
 				if (Config.HANDLER.instance().nonTrackingPeriods.length > payload.index()) {
 					Config.HANDLER.instance().nonTrackingPeriods[payload.index()] = payload.timePeriodString();
 					Config.HANDLER.save();
-				} else if (Config.HANDLER.instance().nonTrackingPeriods.length == payload.index()) {
-					Config.HANDLER.instance().nonTrackingPeriods = Arrays.copyOf(Config.HANDLER.instance().nonTrackingPeriods, payload.index());
-					Config.HANDLER.instance().nonTrackingPeriods[payload.index()] = payload.timePeriodString();
-					Config.HANDLER.save();
 				} else {
 					context.player().sendMessage(Text.literal("Invalid time period change, the time periods may have changed after you opened your screen").withColor(0xFF0000));
 				}
 			}
 		});
+		ServerPlayNetworking.registerGlobalReceiver(RemoveTimeWindowPacket.ID, ((payload, context) -> {
+			if (context.player().hasPermissionLevel(3)) {
+				Config.TimePeriodString[] timePeriodStrings = Config.HANDLER.instance().nonTrackingPeriods;
+
+				List<Config.TimePeriodString> newTimePeriodStrings = Arrays.asList(timePeriodStrings);
+				newTimePeriodStrings.remove(payload.index());
+				Config.HANDLER.instance().nonTrackingPeriods = newTimePeriodStrings.toArray(Config.TimePeriodString[]::new);
+			}
+		}));
 	}
 }

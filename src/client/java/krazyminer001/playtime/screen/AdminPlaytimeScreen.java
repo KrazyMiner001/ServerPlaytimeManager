@@ -8,6 +8,7 @@ import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import krazyminer001.playtime.config.Config;
 import krazyminer001.playtime.networking.ChangeTimeWindowPacket;
+import krazyminer001.playtime.networking.RemoveTimeWindowPacket;
 import krazyminer001.playtime.networking.RequestTimeWindowsPacket;
 import krazyminer001.playtime.tracking.ClientServerDataCache;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -122,8 +123,19 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                                     this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
                                                                 }
                                                         )
+                                                                .margins(Insets.of(5))
                                                 )
-                                                .padding(Insets.of(5))
+                                                .child(
+                                                        Components.button(
+                                                                Text.literal("Delete"),
+                                                                button -> {
+                                                                    ClientPlayNetworking.send(new RemoveTimeWindowPacket(indexedLocalTimePair.index));
+                                                                    assert this.client != null;
+                                                                    this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
+                                                                }
+                                                        )
+                                                                .margins(Insets.of(5))
+                                                )
                                 )
                                 .alignment(HorizontalAlignment.RIGHT, VerticalAlignment.TOP)
                                 .padding(Insets.of(5))
