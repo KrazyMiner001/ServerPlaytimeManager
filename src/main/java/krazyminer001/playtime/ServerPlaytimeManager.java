@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -237,6 +238,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(RequestTimeWindowsPacket.ID, RequestTimeWindowsPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(ChangeTimeWindowPacket.ID, ChangeTimeWindowPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(RemoveTimeWindowPacket.ID, RemoveTimeWindowPacket.CODEC);
+		PayloadTypeRegistry.playC2S().register(AddTimeWindowPacket.ID, AddTimeWindowPacket.CODEC);
 
 		PayloadTypeRegistry.playS2C().register(SendUserPlaytimePacket.ID, SendUserPlaytimePacket.CODEC);
 		PayloadTypeRegistry.playS2C().register(SendTimeWindowsPacket.ID, SendTimeWindowsPacket.CODEC);
@@ -261,9 +263,18 @@ public class ServerPlaytimeManager implements ModInitializer {
 			if (context.player().hasPermissionLevel(3)) {
 				Config.TimePeriodString[] timePeriodStrings = Config.HANDLER.instance().nonTrackingPeriods;
 
-				List<Config.TimePeriodString> newTimePeriodStrings = Arrays.asList(timePeriodStrings);
+				List<Config.TimePeriodString> newTimePeriodStrings = new ArrayList<>(Arrays.asList(timePeriodStrings));
 				newTimePeriodStrings.remove(payload.index());
 				Config.HANDLER.instance().nonTrackingPeriods = newTimePeriodStrings.toArray(Config.TimePeriodString[]::new);
+				Config.HANDLER.save();
+			}
+		}));
+		ServerPlayNetworking.registerGlobalReceiver(AddTimeWindowPacket.ID, ((payload, context) -> {
+			if (context.player().hasPermissionLevel(3)) {
+				final Config.TimePeriodString[] nonTrackingPeriods = Config.HANDLER.instance().nonTrackingPeriods;
+				Config.HANDLER.instance().nonTrackingPeriods = Arrays.copyOf(nonTrackingPeriods, nonTrackingPeriods.length + 1);
+				Config.HANDLER.instance().nonTrackingPeriods[nonTrackingPeriods.length] = payload.timePeriodString();
+				Config.HANDLER.save();
 			}
 		}));
 	}

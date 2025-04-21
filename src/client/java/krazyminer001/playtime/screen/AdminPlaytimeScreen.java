@@ -7,6 +7,7 @@ import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
 import krazyminer001.playtime.config.Config;
+import krazyminer001.playtime.networking.AddTimeWindowPacket;
 import krazyminer001.playtime.networking.ChangeTimeWindowPacket;
 import krazyminer001.playtime.networking.RemoveTimeWindowPacket;
 import krazyminer001.playtime.networking.RequestTimeWindowsPacket;
@@ -35,8 +36,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
     protected void build(FlowLayout rootComponent) {
         ClientPlayNetworking.send(new RequestTimeWindowsPacket());
         if (ClientServerDataCache.timePeriodStringDirty) {
-            assert this.client != null;
-            this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
+            reopenScreen();
         }
 
         rootComponent
@@ -120,7 +120,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                                         this.client.player.sendMessage(Text.literal("Invalid start or end time").withColor(0xFF0000));
                                                                     }
 
-                                                                    this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
+                                                                    reopenScreen();
                                                                 }
                                                         )
                                                                 .margins(Insets.of(5))
@@ -130,8 +130,8 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                                 Text.literal("Delete"),
                                                                 button -> {
                                                                     ClientPlayNetworking.send(new RemoveTimeWindowPacket(indexedLocalTimePair.index));
-                                                                    assert this.client != null;
-                                                                    this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
+                                                                    reopenScreen();
+                                                                    ClientServerDataCache.timePeriodStringDirty = true;
                                                                 }
                                                         )
                                                                 .margins(Insets.of(5))
@@ -142,6 +142,20 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                 .surface(Surface.outline(0xFFA0A0A0).and(Surface.flat(0x50505050)))
                                 .margins(Insets.of(5))
                 ));
+
+        timeWindows.child(
+                Components.button(
+                        Text.literal("Add new"),
+                        button -> {
+                            ClientPlayNetworking.send(new AddTimeWindowPacket(new Config.TimePeriodString("00:00+00:00", "00:00+00:00")));
+                            ClientServerDataCache.timePeriodStringDirty = true;
+                            reopenScreen();
+                        }
+                )
+                        .margins(Insets.of(5))
+        );
+
+        timeWindows.alignment(HorizontalAlignment.CENTER, VerticalAlignment.TOP);
         //endregion
 
         rootComponent
@@ -153,6 +167,11 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                         )
                 );
 
+    }
+
+    private void reopenScreen() {
+        assert this.client != null;
+        this.client.send(() -> this.client.setScreen(new AdminPlaytimeScreen()));
     }
 
     private record IndexedLocalTimePair(LocalTime time1, LocalTime time2, int index) {}
