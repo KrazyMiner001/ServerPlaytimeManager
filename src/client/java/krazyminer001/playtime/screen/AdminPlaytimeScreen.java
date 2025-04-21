@@ -95,7 +95,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                         Containers.horizontalFlow(Sizing.content(), Sizing.content())
                                                 .child(
                                                         Components.button(
-                                                                Text.literal("Save"),
+                                                                Text.translatable("playtime.playtime.timewindows.save"),
                                                                 button -> {
                                                                     TextBoxComponent startTimeBox = timeWindows.childById(TextBoxComponent.class, "start_time_" + indexedLocalTimePair.index);
                                                                     TextBoxComponent endTimeBox = timeWindows.childById(TextBoxComponent.class, "end_time_" + indexedLocalTimePair.index);
@@ -117,7 +117,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                                         ClientServerDataCache.timePeriodStringDirty = true;
                                                                     } catch (DateTimeParseException e) {
                                                                         assert this.client.player != null;
-                                                                        this.client.player.sendMessage(Text.literal("Invalid start or end time").withColor(0xFF0000));
+                                                                        this.client.player.sendMessage(Text.translatable("playtime.playtime.timewindows.save.invalid_time").withColor(0xFF0000));
                                                                     }
 
                                                                     reopenScreen();
@@ -127,7 +127,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                 )
                                                 .child(
                                                         Components.button(
-                                                                Text.literal("Delete"),
+                                                                Text.translatable("playtime.playtime.timewindows.delete_button"),
                                                                 button -> {
                                                                     ClientPlayNetworking.send(new RemoveTimeWindowPacket(indexedLocalTimePair.index));
                                                                     reopenScreen();
@@ -145,7 +145,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
 
         timeWindows.child(
                 Components.button(
-                        Text.literal("Add new"),
+                        Text.translatable("playtime.playtime.timewindows.add_new_button"),
                         button -> {
                             ClientPlayNetworking.send(new AddTimeWindowPacket(new Config.TimePeriodString("00:00+00:00", "00:00+00:00")));
                             ClientServerDataCache.timePeriodStringDirty = true;

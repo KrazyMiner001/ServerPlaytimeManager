@@ -99,7 +99,7 @@ public class PlayerPlaytimeTracker extends PersistentState {
             server.getPlayerManager().getPlayerList().forEach(player -> {
                 if (playerPlaytimes.get(player.getUuid()) > Config.HANDLER.instance().maxTime) {
                     player.networkHandler.disconnect(Text.translatableWithFallback(
-                            "playtime.disconnect.overtime",
+                            "disconnect.playtime.overtime",
                             "You have exceeded your playtime",
                             Config.HANDLER.instance().maxTime,
                             soonestTimePeriod.map(TimePeriod::display).orElse("there don't seem to be any time periods")

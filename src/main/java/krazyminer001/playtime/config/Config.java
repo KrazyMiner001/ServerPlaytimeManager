@@ -9,6 +9,7 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,8 +67,8 @@ public class Config {
                     '}';
         }
 
-        public String display() {
-            return "startTime: " + startTime + ", endTime: " + endTime;
+        public Text display() {
+            return Text.translatable("timeperiod.playtime.display", startTime, endTime);
         }
     }
 }
