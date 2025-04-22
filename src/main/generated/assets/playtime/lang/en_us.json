@@ -11,8 +11,11 @@
   "disconnect.playtime.overtime": "You have exceeded your max daily playtime today of %s ticks, the next window where time is not tracked is %s",
   "playtime.playtime.timewindows.add_new_button": "Add New",
   "playtime.playtime.timewindows.delete_button": "Delete",
+  "playtime.playtime.timewindows.end_time": "End Time",
   "playtime.playtime.timewindows.invalid_time_period_change": "Invalid time period change, the time periods on the server may have changed since you opened the screen",
   "playtime.playtime.timewindows.save.invalid_time": "Invalid start or end time",
   "playtime.playtime.timewindows.save_button": "Save",
+  "playtime.playtime.timewindows.start_time": "Start Time",
+  "time.playtime.duration": "%s hours, %s minutes, %s seconds",
   "timeperiod.playtime.display": "startTime: %s, endTime: %s"
 }

@@ -62,40 +62,46 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                 .forEach(indexedLocalTimePair -> timeWindows.child(
                         Containers.verticalFlow(Sizing.content(), Sizing.content())
                                 .child(
-                                        Containers.horizontalFlow(Sizing.fixed(175), Sizing.fixed(35))
+                                        Containers.grid(Sizing.content(), Sizing.content(), 2, 2)
                                                 .child(
-                                                        Components.label(Text.literal("Start Time   "))
+                                                        Components.label(Text.translatable("playtime.playtime.timewindows.start_time"))
+                                                                .margins(Insets.of(5)),
+                                                        0,
+                                                        0
                                                 )
                                                 .child(
                                                         Components.textBox(
                                                                 Sizing.fixed(100),
                                                                 indexedLocalTimePair.time1.format(DateTimeFormatter.ISO_LOCAL_TIME)
                                                         )
-                                                                .id("start_time_" + indexedLocalTimePair.index)
+                                                                .margins(Insets.of(5))
+                                                                .id("start_time_" + indexedLocalTimePair.index),
+                                                        0,
+                                                        1
                                                 )
-                                                .alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
-                                                .padding(Insets.of(5))
-                                )
-                                .child(
-                                        Containers.horizontalFlow(Sizing.fixed(175), Sizing.fixed(35))
                                                 .child(
-                                                        Components.label(Text.literal("End Time     "))
+                                                        Components.label(Text.translatable("playtime.playtime.timewindows.end_time"))
+                                                                .margins(Insets.of(5)),
+                                                        1,
+                                                        0
                                                 )
                                                 .child(
                                                         Components.textBox(
-                                                                Sizing.fixed(100),
-                                                                indexedLocalTimePair.time2.format(DateTimeFormatter.ISO_LOCAL_TIME)
-                                                        )
-                                                                .id("end_time_" + indexedLocalTimePair.index)
+                                                                        Sizing.fixed(100),
+                                                                        indexedLocalTimePair.time2.format(DateTimeFormatter.ISO_LOCAL_TIME)
+                                                                )
+                                                                .margins(Insets.of(5))
+                                                                .id("end_time_" + indexedLocalTimePair.index),
+                                                        1,
+                                                        1
                                                 )
                                                 .alignment(HorizontalAlignment.LEFT, VerticalAlignment.CENTER)
-                                                .padding(Insets.of(5))
                                 )
                                 .child(
                                         Containers.horizontalFlow(Sizing.content(), Sizing.content())
                                                 .child(
                                                         Components.button(
-                                                                Text.translatable("playtime.playtime.timewindows.save"),
+                                                                Text.translatable("playtime.playtime.timewindows.save_button"),
                                                                 button -> {
                                                                     TextBoxComponent startTimeBox = timeWindows.childById(TextBoxComponent.class, "start_time_" + indexedLocalTimePair.index);
                                                                     TextBoxComponent endTimeBox = timeWindows.childById(TextBoxComponent.class, "end_time_" + indexedLocalTimePair.index);

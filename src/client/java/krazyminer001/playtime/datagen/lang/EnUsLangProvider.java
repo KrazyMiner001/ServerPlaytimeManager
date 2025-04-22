@@ -19,6 +19,8 @@ public class EnUsLangProvider extends FabricLanguageProvider {
         translationBuilder.add("playtime.playtime.timewindows.add_new_button", "Add New");
         translationBuilder.add("playtime.playtime.timewindows.save.invalid_time", "Invalid start or end time");
         translationBuilder.add("playtime.playtime.timewindows.invalid_time_period_change", "Invalid time period change, the time periods on the server may have changed since you opened the screen");
+        translationBuilder.add("playtime.playtime.timewindows.start_time", "Start Time");
+        translationBuilder.add("playtime.playtime.timewindows.end_time", "End Time");
 
         translationBuilder.add("commands.playtime.query.not_a_player", "You must be a player or specify a player target to run this command");
         translationBuilder.add("commands.playtime.query.user_playtime", "You have played: %s seconds today");
@@ -31,6 +33,7 @@ public class EnUsLangProvider extends FabricLanguageProvider {
         translationBuilder.add("commands.playtime.timewindows.remove.non_existant_timewindow", "There is no period defined by startTime: %s and endTime: %s");
 
         translationBuilder.add("timeperiod.playtime.display", "startTime: %s, endTime: %s");
+        translationBuilder.add("time.playtime.duration", "%s hours, %s minutes, %s seconds");
 
     }
 }

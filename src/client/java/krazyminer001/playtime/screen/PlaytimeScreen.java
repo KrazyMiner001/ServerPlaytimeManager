@@ -8,6 +8,9 @@ import krazyminer001.playtime.tracking.ClientServerDataCache;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.text.Text;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+
 import static krazyminer001.playtime.util.IdentifierHelper.of;
 
 public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
@@ -19,7 +22,11 @@ public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
     protected void build(FlowLayout rootComponent) {
         ClientPlayNetworking.send(new RequestUserPlaytimePacket());
 
+
         rootComponent.childById(UpdatableLabelComponent.class, "seconds-counter")
-                .text(() -> Text.of(String.valueOf(ClientServerDataCache.playtime / 20)));
+                .text(() -> {
+                    Duration playtime = Duration.of(ClientServerDataCache.playtime * 50L, ChronoUnit.MILLIS);
+                    return Text.translatable("time.playtime.duration", playtime.toHoursPart(), playtime.toMinutesPart(), playtime.toSecondsPart());
+                });
     }
 }
