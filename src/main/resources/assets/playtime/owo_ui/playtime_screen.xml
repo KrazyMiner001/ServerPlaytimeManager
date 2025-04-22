@@ -8,10 +8,26 @@
                         <label>
                             <text>You have logged: </text>
                         </label>
-                        <playtime.updatable-label id="seconds-counter"/>
+                        <playtime.updatable-label id="time-counter"/>
                         <label>
-                            <text> seconds today!</text>
+                            <text> today!</text>
                         </label>
+                    </children>
+
+                    <horizontal-alignment>center</horizontal-alignment>
+                    <vertical-alignment>center</vertical-alignment>
+
+                    <padding>
+                        <all>5</all>
+                    </padding>
+
+                    <surface>
+                        <panel dark="true"/>
+                    </surface>
+                </flow-layout>
+                <flow-layout direction="horizontal">
+                    <children>
+                        <playtime.updatable-label id="next-time-window"/>
                     </children>
 
                     <horizontal-alignment>center</horizontal-alignment>

@@ -7,8 +7,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
 public class TimePeriod {
-    private final LocalTime startTime;
-    private final LocalTime endTime;
+    public final LocalTime startTime;
+    public final LocalTime endTime;
 
     public TimePeriod(Config.TimePeriodString timePeriodString) {
         this.startTime = OffsetTime.parse(timePeriodString.startTime()).withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toLocalTime();
@@ -22,7 +22,7 @@ public class TimePeriod {
     public Duration until(LocalTime time) {
         if (isWithin(time)) return Duration.ZERO;
         if (time.isBefore(startTime)) return Duration.between(time, startTime);
-        return Duration.of(time.until(LocalTime.MIDNIGHT, ChronoUnit.SECONDS) + LocalTime.MIDNIGHT.until(time, ChronoUnit.SECONDS), ChronoUnit.SECONDS);
+        return Duration.of(time.until(LocalTime.MAX, ChronoUnit.SECONDS) + LocalTime.MIDNIGHT.until(time, ChronoUnit.SECONDS), ChronoUnit.SECONDS);
     }
 
     public String display() {
