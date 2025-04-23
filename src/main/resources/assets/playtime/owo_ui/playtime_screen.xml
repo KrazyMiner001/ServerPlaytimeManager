@@ -41,6 +41,22 @@
                         <panel dark="true"/>
                     </surface>
                 </flow-layout>
+                <flow-layout direction="horizontal">
+                    <children>
+                        <playtime.updatable-label id="midnight"/>
+                    </children>
+
+                    <horizontal-alignment>center</horizontal-alignment>
+                    <vertical-alignment>center</vertical-alignment>
+
+                    <padding>
+                        <all>5</all>
+                    </padding>
+
+                    <surface>
+                        <panel dark="true"/>
+                    </surface>
+                </flow-layout>
             </children>
 
             <horizontal-alignment>center</horizontal-alignment>

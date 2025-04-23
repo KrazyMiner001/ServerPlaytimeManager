@@ -2,6 +2,7 @@ package krazyminer001.playtime;
 
 import io.wispforest.owo.ui.parsing.UIParsing;
 import krazyminer001.playtime.networking.SendTimeWindowsPacket;
+import krazyminer001.playtime.networking.SendTimezonePacket;
 import krazyminer001.playtime.networking.SendUserPlaytimePacket;
 import krazyminer001.playtime.screen.AdminPlaytimeScreen;
 import krazyminer001.playtime.screen.PlaytimeScreen;
@@ -48,5 +49,8 @@ public class ServerPlaytimeManagerClient implements ClientModInitializer {
 				ClientServerDataCache.timePeriodStrings = sendTimeWindowsPacket.timePeriods();
 				ClientServerDataCache.timePeriodStringDirty = false;
 		});
+		ClientPlayNetworking.registerGlobalReceiver(SendTimezonePacket.ID, (sendTimezonePacket, context) ->
+				ClientServerDataCache.midnightTimezone = sendTimezonePacket.zoneOffset()
+		);
 	}
 }

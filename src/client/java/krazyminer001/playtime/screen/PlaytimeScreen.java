@@ -10,8 +10,7 @@ import krazyminer001.playtime.tracking.ClientServerDataCache;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.text.Text;
 
-import java.time.Duration;
-import java.time.LocalTime;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
@@ -42,8 +41,19 @@ public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
                             String nextPeriod = timePeriod.startTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
                             Duration untilNextPeriod = timePeriod.until(LocalTime.now());
 
+                            if (untilNextPeriod.toDays() >= 1) return Text.translatable("playtime.playtime.next_time_window_tomorrow", nextPeriod);
                             return Text.translatable("playtime.playtime.next_time_window", nextPeriod, untilNextPeriod.toHours(), untilNextPeriod.toMinutesPart(), untilNextPeriod.toSecondsPart());
                         })
                         .orElse(Text.empty()));
+
+        rootComponent.childById(UpdatableLabelComponent.class, "midnight")
+                .text(() -> Text.translatable(
+                        "playtime.playtime.midnight_local_time",
+                        LocalTime.MIDNIGHT
+                                .atOffset(ClientServerDataCache.midnightTimezone)
+                                .withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now()))
+                                .toLocalTime()
+                                .toString()
+                ));
     }
 }

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
@@ -242,9 +243,11 @@ public class ServerPlaytimeManager implements ModInitializer {
 		PayloadTypeRegistry.playC2S().register(ChangeTimeWindowPacket.ID, ChangeTimeWindowPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(RemoveTimeWindowPacket.ID, RemoveTimeWindowPacket.CODEC);
 		PayloadTypeRegistry.playC2S().register(AddTimeWindowPacket.ID, AddTimeWindowPacket.CODEC);
+		PayloadTypeRegistry.playC2S().register(RequestTimezonePacket.ID, RequestTimezonePacket.CODEC);
 
 		PayloadTypeRegistry.playS2C().register(SendUserPlaytimePacket.ID, SendUserPlaytimePacket.CODEC);
 		PayloadTypeRegistry.playS2C().register(SendTimeWindowsPacket.ID, SendTimeWindowsPacket.CODEC);
+		PayloadTypeRegistry.playS2C().register(SendTimezonePacket.ID, SendTimezonePacket.CODEC);
 
 		ServerPlayNetworking.registerGlobalReceiver(RequestUserPlaytimePacket.ID, (payload, context) ->
 				context.responseSender().sendPacket(new SendUserPlaytimePacket(PLAYTIME_TRACKER.getPlaytimeTicks(context.player().getUuid())))
@@ -280,5 +283,8 @@ public class ServerPlaytimeManager implements ModInitializer {
 				Config.HANDLER.save();
 			}
 		}));
+		ServerPlayNetworking.registerGlobalReceiver(RemoveTimeWindowPacket.ID, (payload, context) ->
+				context.responseSender().sendPacket(new SendTimezonePacket(ZoneOffset.of(Config.HANDLER.instance().timezone)))
+		);
 	}
 }
