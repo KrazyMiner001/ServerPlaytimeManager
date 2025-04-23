@@ -6,7 +6,7 @@ import io.wispforest.owo.ui.component.TextBoxComponent;
 import io.wispforest.owo.ui.container.Containers;
 import io.wispforest.owo.ui.container.FlowLayout;
 import io.wispforest.owo.ui.core.*;
-import krazyminer001.playtime.config.Config;
+import krazyminer001.playtime.config.TimePeriodString;
 import krazyminer001.playtime.networking.AddTimeWindowPacket;
 import krazyminer001.playtime.networking.ChangeTimeWindowPacket;
 import krazyminer001.playtime.networking.RemoveTimeWindowPacket;
@@ -45,7 +45,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                 .verticalAlignment(VerticalAlignment.CENTER)
                 .padding(Insets.of(5));
 
-        ArrayList<Config.TimePeriodString> timePeriodStrings = new ArrayList<>(ClientServerDataCache.timePeriodStrings);
+        ArrayList<TimePeriodString> timePeriodStrings = new ArrayList<>(ClientServerDataCache.timePeriodStrings);
 
         //region Time Windows
         FlowLayout timeWindows = (FlowLayout) Containers.verticalFlow(Sizing.content(), Sizing.content())
@@ -114,7 +114,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                                                                         DateTimeFormatter.ISO_OFFSET_TIME.parse(startTime);
                                                                         DateTimeFormatter.ISO_OFFSET_TIME.parse(endTime);
 
-                                                                        Config.TimePeriodString timePeriodString = new Config.TimePeriodString(
+                                                                        TimePeriodString timePeriodString = new TimePeriodString(
                                                                                 startTime,
                                                                                 endTime
                                                                         );
@@ -153,7 +153,7 @@ public class AdminPlaytimeScreen extends BaseOwoScreen<FlowLayout> {
                 Components.button(
                         Text.translatable("playtime.playtime.timewindows.add_new_button"),
                         button -> {
-                            ClientPlayNetworking.send(new AddTimeWindowPacket(new Config.TimePeriodString("00:00+00:00", "00:00+00:00")));
+                            ClientPlayNetworking.send(new AddTimeWindowPacket(new TimePeriodString("00:00+00:00", "00:00+00:00")));
                             ClientServerDataCache.timePeriodStringDirty = true;
                             reopenScreen();
                         }

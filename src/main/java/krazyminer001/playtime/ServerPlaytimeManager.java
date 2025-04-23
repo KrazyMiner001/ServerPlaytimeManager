@@ -3,7 +3,8 @@ package krazyminer001.playtime;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import krazyminer001.playtime.config.Config;
+import krazyminer001.playtime.config.PlaytimeConfig;
+import krazyminer001.playtime.config.TimePeriodString;
 import krazyminer001.playtime.networking.*;
 import krazyminer001.playtime.tracking.PlayerPlaytimeTracker;
 import net.fabricmc.api.ModInitializer;
@@ -14,18 +15,13 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.argument.GameProfileArgumentType;
 import net.minecraft.text.Text;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Stream;
 
 import static net.minecraft.server.command.CommandManager.argument;
 import static net.minecraft.server.command.CommandManager.literal;
@@ -38,10 +34,11 @@ public class ServerPlaytimeManager implements ModInitializer {
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static PlayerPlaytimeTracker PLAYTIME_TRACKER;
+	public static PlaytimeConfig PLAYTIME_CONFIG;
 
 	@Override
 	public void onInitialize() {
-		Config.HANDLER.load();
+		PLAYTIME_CONFIG = PlaytimeConfig.createAndLoad();
 
 		ServerLifecycleEvents.SERVER_STARTED.register((minecraftServer -> PLAYTIME_TRACKER = PlayerPlaytimeTracker.getServerState(minecraftServer)));
 
@@ -99,7 +96,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 							.requires(source -> source.hasPermissionLevel(2))
 							.then(literal("reload")
 									.executes(context -> {
-										Config.HANDLER.load();
+										PLAYTIME_CONFIG.load();
 										PLAYTIME_TRACKER.reload();
 										return 1;
 									})
@@ -108,9 +105,8 @@ public class ServerPlaytimeManager implements ModInitializer {
 									.then(literal("maxTime")
 											.then(argument("ticks", IntegerArgumentType.integer())
 													.executes(context -> {
-														Config.HANDLER.instance().maxTime = IntegerArgumentType.getInteger(context, "ticks");
-														Config.HANDLER.save();
-														Config.HANDLER.load();
+														PLAYTIME_CONFIG.maxTime(IntegerArgumentType.getInteger(context, "ticks"));
+														PLAYTIME_CONFIG.save();
 														return 1;
 													})
 											)
@@ -119,7 +115,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 							.then(literal("get")
 									.then(literal("maxTime")
 											.executes(context -> {
-												context.getSource().sendFeedback(() -> Text.of(String.valueOf(Config.HANDLER.instance().maxTime)), false);
+												context.getSource().sendFeedback(() -> Text.of(String.valueOf(PLAYTIME_CONFIG.maxTime())), false);
 												return 1;
 											})
 									)
@@ -152,16 +148,14 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	return 0;
 																}
 
-																Config.HANDLER.instance().nonTrackingPeriods =
-																		ArrayUtils.add(
-																					Config.HANDLER.instance().nonTrackingPeriods,
-																					new Config.TimePeriodString(
-																							StringArgumentType.getString(context, "startTime"),
-																							StringArgumentType.getString(context, "endTime")
-																					)
-																				);
+																PLAYTIME_CONFIG.timePeriods().add(
+																		new TimePeriodString(
+																				StringArgumentType.getString(context, "startTime"),
+																				StringArgumentType.getString(context, "endTime")
+																		)
+																);
 
-																Config.HANDLER.save();
+																PLAYTIME_CONFIG.save();
 																PLAYTIME_TRACKER.reload();
 																return 1;
 															})
@@ -198,8 +192,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	return 0;
 																}
 
-																Stream<Config.TimePeriodString> times = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods);
-																if (times.noneMatch((time -> time.equals(new Config.TimePeriodString(startTime, endTime))))) {
+																if (PLAYTIME_CONFIG.timePeriods().stream().noneMatch((time -> time.equals(new TimePeriodString(startTime, endTime))))) {
 																	context
 																			.getSource()
 																			.sendFeedback(
@@ -209,11 +202,9 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	return 0;
 																}
 
-																times = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods);
+																PLAYTIME_CONFIG.timePeriods().remove(new TimePeriodString(startTime, endTime));
+																PLAYTIME_CONFIG.save();
 
-																Config.HANDLER.instance().nonTrackingPeriods = times.filter(time -> !time.equals(new Config.TimePeriodString(startTime, endTime))).toArray(Config.TimePeriodString[]::new);
-
-																Config.HANDLER.save();
 																PLAYTIME_TRACKER.reload();
 																return 1;
 															})
@@ -222,7 +213,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 									)
 									.then(literal("list")
 											.executes(context -> {
-												Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods)
+												PLAYTIME_CONFIG.timePeriods()
 														.forEach(period -> context
                                                                 .getSource()
                                                                 .sendFeedback(
@@ -253,38 +244,32 @@ public class ServerPlaytimeManager implements ModInitializer {
 				context.responseSender().sendPacket(new SendUserPlaytimePacket(PLAYTIME_TRACKER.getPlaytimeTicks(context.player().getUuid())))
 		);
 		ServerPlayNetworking.registerGlobalReceiver(RequestTimeWindowsPacket.ID, (payload, context) ->
-				context.responseSender().sendPacket(new SendTimeWindowsPacket(Arrays.asList(Config.HANDLER.instance().nonTrackingPeriods)))
+				context.responseSender().sendPacket(new SendTimeWindowsPacket(PLAYTIME_CONFIG.timePeriods()))
 		);
 		ServerPlayNetworking.registerGlobalReceiver(ChangeTimeWindowPacket.ID, (payload, context) -> {
 			if (context.player().hasPermissionLevel(3)) {
-				if (Config.HANDLER.instance().nonTrackingPeriods.length > payload.index()) {
-					Config.HANDLER.instance().nonTrackingPeriods[payload.index()] = payload.timePeriodString();
-					Config.HANDLER.save();
-				} else {
+				if (PLAYTIME_CONFIG.timePeriods().size() <= payload.index()) {
 					context.player().sendMessage(Text.translatable("playtime.playtime.timewindows.invalid_time_period_change").withColor(0xFF0000));
+					return;
 				}
+				PLAYTIME_CONFIG.timePeriods().set(payload.index(), payload.timePeriodString());
+				PLAYTIME_CONFIG.save();
 			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(RemoveTimeWindowPacket.ID, ((payload, context) -> {
 			if (context.player().hasPermissionLevel(3)) {
-				Config.TimePeriodString[] timePeriodStrings = Config.HANDLER.instance().nonTrackingPeriods;
-
-				List<Config.TimePeriodString> newTimePeriodStrings = new ArrayList<>(Arrays.asList(timePeriodStrings));
-				newTimePeriodStrings.remove(payload.index());
-				Config.HANDLER.instance().nonTrackingPeriods = newTimePeriodStrings.toArray(Config.TimePeriodString[]::new);
-				Config.HANDLER.save();
+				PLAYTIME_CONFIG.timePeriods().remove(payload.index());
+				PLAYTIME_CONFIG.save();
 			}
 		}));
 		ServerPlayNetworking.registerGlobalReceiver(AddTimeWindowPacket.ID, ((payload, context) -> {
 			if (context.player().hasPermissionLevel(3)) {
-				final Config.TimePeriodString[] nonTrackingPeriods = Config.HANDLER.instance().nonTrackingPeriods;
-				Config.HANDLER.instance().nonTrackingPeriods = Arrays.copyOf(nonTrackingPeriods, nonTrackingPeriods.length + 1);
-				Config.HANDLER.instance().nonTrackingPeriods[nonTrackingPeriods.length] = payload.timePeriodString();
-				Config.HANDLER.save();
+				PLAYTIME_CONFIG.timePeriods().add(payload.timePeriodString());
+				PLAYTIME_CONFIG.save();
 			}
 		}));
 		ServerPlayNetworking.registerGlobalReceiver(RemoveTimeWindowPacket.ID, (payload, context) ->
-				context.responseSender().sendPacket(new SendTimezonePacket(ZoneOffset.of(Config.HANDLER.instance().timezone)))
+				context.responseSender().sendPacket(new SendTimezonePacket(ZoneOffset.of(PLAYTIME_CONFIG.timezone())))
 		);
 	}
 }

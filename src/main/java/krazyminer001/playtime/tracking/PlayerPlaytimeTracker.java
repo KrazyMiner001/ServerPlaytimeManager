@@ -1,7 +1,6 @@
 package krazyminer001.playtime.tracking;
 
 import krazyminer001.playtime.ServerPlaytimeManager;
-import krazyminer001.playtime.config.Config;
 import krazyminer001.playtime.time.TimePeriod;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
@@ -13,6 +12,7 @@ import net.minecraft.world.PersistentState;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -31,12 +31,12 @@ public class PlayerPlaytimeTracker extends PersistentState {
 
     private PlayerPlaytimeTracker() {
         playerPlaytimes = new HashMap<>();
-        nonTrackingPeriods = Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods).map(TimePeriod::new).collect(Collectors.toList());
+        nonTrackingPeriods = ServerPlaytimeManager.PLAYTIME_CONFIG.timePeriods().stream().map(TimePeriod::new).collect(Collectors.toList());
     }
 
     public void reload() {
         nonTrackingPeriods.clear();
-        nonTrackingPeriods.addAll(Arrays.stream(Config.HANDLER.instance().nonTrackingPeriods).map(TimePeriod::new).toList());
+        nonTrackingPeriods.addAll(ServerPlaytimeManager.PLAYTIME_CONFIG.timePeriods().stream().map(TimePeriod::new).toList());
     }
     
     public static PlayerPlaytimeTracker createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
@@ -49,7 +49,7 @@ public class PlayerPlaytimeTracker extends PersistentState {
     
     public static PlayerPlaytimeTracker createNew() {
         PlayerPlaytimeTracker playerPlaytimeTracker = new PlayerPlaytimeTracker();
-        playerPlaytimeTracker.cachedDate = LocalDate.now(Config.getZoneOffset());
+        playerPlaytimeTracker.cachedDate = LocalDate.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()));
         return playerPlaytimeTracker;
     }
 
@@ -77,11 +77,11 @@ public class PlayerPlaytimeTracker extends PersistentState {
     }
 
     public void tick(MinecraftServer server) {
-        LocalTime now = LocalTime.now(Config.getZoneOffset());
+        LocalTime now = LocalTime.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()));
 
-        if (cachedDate.isBefore(LocalDate.now(Config.getZoneOffset()))) {
+        if (cachedDate.isBefore(LocalDate.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone())))) {
             playerPlaytimes.clear();
-            cachedDate = LocalDate.now(Config.getZoneOffset());
+            cachedDate = LocalDate.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()));
         }
 
         server.getPlayerManager().getPlayerList().forEach(player -> {
@@ -95,13 +95,13 @@ public class PlayerPlaytimeTracker extends PersistentState {
 
         Optional<TimePeriod> soonestTimePeriod = nonTrackingPeriods.stream().min(Comparator.comparing(period -> period.until(now)));
 
-        if (Config.HANDLER.instance().maxTime >= 0) {
+        if (ServerPlaytimeManager.PLAYTIME_CONFIG.maxTime() >= 0) {
             server.getPlayerManager().getPlayerList().forEach(player -> {
-                if (playerPlaytimes.get(player.getUuid()) > Config.HANDLER.instance().maxTime) {
+                if (playerPlaytimes.get(player.getUuid()) > ServerPlaytimeManager.PLAYTIME_CONFIG.maxTime()) {
                     player.networkHandler.disconnect(Text.translatableWithFallback(
                             "disconnect.playtime.overtime",
                             "You have exceeded your playtime",
-                            Config.HANDLER.instance().maxTime,
+                            ServerPlaytimeManager.PLAYTIME_CONFIG.maxTime(),
                             soonestTimePeriod.map(TimePeriod::display).orElse("there don't seem to be any time periods")
                     ));
                 }

@@ -1,6 +1,6 @@
 package krazyminer001.playtime.time;
 
-import krazyminer001.playtime.config.Config;
+import krazyminer001.playtime.config.TimePeriodString;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
@@ -10,7 +10,7 @@ public class TimePeriod {
     public final LocalTime startTime;
     public final LocalTime endTime;
 
-    public TimePeriod(Config.TimePeriodString timePeriodString) {
+    public TimePeriod(TimePeriodString timePeriodString) {
         this.startTime = OffsetTime.parse(timePeriodString.startTime()).withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toLocalTime();
         this.endTime = OffsetTime.parse(timePeriodString.endTime()).withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toLocalTime();
     }
