@@ -12,6 +12,7 @@
   "playtime.playtime.midnight_local_time": "Midnight for the server is at %s local time",
   "playtime.playtime.next_time_window": "The next time window is at %s, which is in %s hours, %s minutes, %s seconds",
   "playtime.playtime.next_time_window_tomorrow": "The next time window is tomorrow, at %s",
+  "playtime.playtime.playtime": "You have logged %s hours, %s minutes, and %s seconds today!",
   "playtime.playtime.timewindows.add_new_button": "Add New",
   "playtime.playtime.timewindows.delete_button": "Delete",
   "playtime.playtime.timewindows.end_time": "End Time",

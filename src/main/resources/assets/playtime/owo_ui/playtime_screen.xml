@@ -5,13 +5,7 @@
             <children>
                 <flow-layout direction="horizontal">
                     <children>
-                        <label>
-                            <text>You have logged: </text>
-                        </label>
-                        <playtime.updatable-label id="time-counter"/>
-                        <label>
-                            <text> today!</text>
-                        </label>
+                        <playtime.updatable-label id="playtime-counter"/>
                     </children>
 
                     <horizontal-alignment>center</horizontal-alignment>

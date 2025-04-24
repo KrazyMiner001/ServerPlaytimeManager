@@ -27,10 +27,10 @@ public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
         ClientPlayNetworking.send(new RequestUserPlaytimePacket());
         ClientPlayNetworking.send(new RequestTimeWindowsPacket());
 
-        rootComponent.childById(UpdatableLabelComponent.class, "time-counter")
+        rootComponent.childById(UpdatableLabelComponent.class, "playtime-counter")
                 .text(() -> {
                     Duration playtime = Duration.of(ClientServerDataCache.playtime * 50L, ChronoUnit.MILLIS);
-                    return Text.translatable("time.playtime.duration", playtime.toHoursPart(), playtime.toMinutesPart(), playtime.toSecondsPart());
+                    return Text.translatable("playtime.playtime.playtime", playtime.toHoursPart(), playtime.toMinutesPart(), playtime.toSecondsPart());
                 });
 
         rootComponent.childById(UpdatableLabelComponent.class, "next-time-window")

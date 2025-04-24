@@ -24,6 +24,7 @@ public class EnUsLangProvider extends FabricLanguageProvider {
         translationBuilder.add("playtime.playtime.next_time_window", "The next time window is at %s, which is in %s hours, %s minutes, %s seconds");
         translationBuilder.add("playtime.playtime.next_time_window_tomorrow", "The next time window is tomorrow, at %s");
         translationBuilder.add("playtime.playtime.midnight_local_time", "Midnight for the server is at %s local time");
+        translationBuilder.add("playtime.playtime.playtime", "You have logged %s hours, %s minutes, and %s seconds today!");
 
         translationBuilder.add("commands.playtime.query.not_a_player", "You must be a player or specify a player target to run this command");
         translationBuilder.add("commands.playtime.query.user_playtime", "You have played: %s seconds today");
