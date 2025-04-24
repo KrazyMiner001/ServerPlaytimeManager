@@ -31,12 +31,12 @@ public class PlayerPlaytimeTracker extends PersistentState {
 
     private PlayerPlaytimeTracker() {
         playerPlaytimes = new HashMap<>();
-        nonTrackingPeriods = ServerPlaytimeManager.PLAYTIME_CONFIG.timePeriods().stream().map(TimePeriod::new).collect(Collectors.toList());
+        nonTrackingPeriods = ServerPlaytimeManager.PLAYTIME_CONFIG.timePeriods().stream().map(timePeriodString -> new TimePeriod(timePeriodString, ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()))).collect(Collectors.toList());
     }
 
     public void reload() {
         nonTrackingPeriods.clear();
-        nonTrackingPeriods.addAll(ServerPlaytimeManager.PLAYTIME_CONFIG.timePeriods().stream().map(TimePeriod::new).toList());
+        nonTrackingPeriods.addAll(ServerPlaytimeManager.PLAYTIME_CONFIG.timePeriods().stream().map(timePeriodString -> new TimePeriod(timePeriodString, ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()))).toList());
     }
     
     public static PlayerPlaytimeTracker createFromNbt(NbtCompound tag, RegistryWrapper.WrapperLookup registryLookup) {
@@ -91,8 +91,9 @@ public class PlayerPlaytimeTracker extends PersistentState {
         server.getPlayerManager().getPlayerList().forEach(player -> {
             UUID uuid = player.getUuid();
             playerPlaytimes.putIfAbsent(uuid, 0);
-            if (nonTrackingPeriods.stream().noneMatch(timePeriod -> timePeriod.isWithin(now)))
+            if (nonTrackingPeriods.stream().noneMatch(timePeriod -> timePeriod.isWithin(now))) {
                 playerPlaytimes.computeIfPresent(uuid, (key, playtime) -> ++playtime);
+            }
         });
 
         markDirty();

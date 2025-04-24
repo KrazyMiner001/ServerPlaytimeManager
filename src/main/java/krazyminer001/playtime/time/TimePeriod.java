@@ -15,6 +15,11 @@ public class TimePeriod {
         this.endTime = OffsetTime.parse(timePeriodString.endTime()).withOffsetSameInstant(ZoneId.systemDefault().getRules().getOffset(Instant.now())).toLocalTime();
     }
 
+    public TimePeriod(TimePeriodString timePeriodString, ZoneOffset zoneOffset) {
+        this.startTime = OffsetTime.parse(timePeriodString.startTime()).withOffsetSameInstant(zoneOffset).toLocalTime();
+        this.endTime = OffsetTime.parse(timePeriodString.endTime()).withOffsetSameInstant(zoneOffset).toLocalTime();
+    }
+
     public boolean isWithin(LocalTime time) {
         return !time.isBefore(startTime) && !time.isAfter(endTime);
     }

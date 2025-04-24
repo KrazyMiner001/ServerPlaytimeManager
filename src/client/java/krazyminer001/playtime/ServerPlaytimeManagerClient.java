@@ -7,6 +7,7 @@ import krazyminer001.playtime.networking.SendUserPlaytimePacket;
 import krazyminer001.playtime.screen.AdminPlaytimeScreen;
 import krazyminer001.playtime.screen.PlaytimeScreen;
 import krazyminer001.playtime.screen.component.UpdatableLabelComponent;
+import krazyminer001.playtime.time.TimePeriod;
 import krazyminer001.playtime.tracking.ClientServerDataCache;
 import krazyminer001.playtime.util.IdentifierHelper;
 import net.fabricmc.api.ClientModInitializer;
@@ -16,6 +17,8 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
+
+import java.time.LocalTime;
 
 @SuppressWarnings("unused")
 public class ServerPlaytimeManagerClient implements ClientModInitializer {
@@ -38,7 +41,11 @@ public class ServerPlaytimeManagerClient implements ClientModInitializer {
 				)
 		));
 
-		ClientTickEvents.END_WORLD_TICK.register((minecraftClient -> ClientServerDataCache.playtime++));
+		ClientTickEvents.END_WORLD_TICK.register((minecraftClient -> {
+			if (ClientServerDataCache.timePeriodStrings.stream().map(TimePeriod::new).noneMatch(timePeriod -> timePeriod.isWithin(LocalTime.now()))) {
+				ClientServerDataCache.playtime++;
+			}
+		}));
 
 		ClientPlayNetworking.registerGlobalReceiver(SendUserPlaytimePacket.ID, (sendUserPlaytimePacket, context) ->
 			ClientServerDataCache.playtime = sendUserPlaytimePacket.playtime()

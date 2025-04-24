@@ -269,18 +269,21 @@ public class ServerPlaytimeManager implements ModInitializer {
 				}
 				PLAYTIME_CONFIG.timePeriods().set(payload.index(), payload.timePeriodString());
 				PLAYTIME_CONFIG.save();
+				PLAYTIME_TRACKER.reload();
 			}
 		});
 		ServerPlayNetworking.registerGlobalReceiver(RemoveTimeWindowPacket.ID, ((payload, context) -> {
 			if (context.player().hasPermissionLevel(3)) {
 				PLAYTIME_CONFIG.timePeriods().remove(payload.index());
 				PLAYTIME_CONFIG.save();
+				PLAYTIME_TRACKER.reload();
 			}
 		}));
 		ServerPlayNetworking.registerGlobalReceiver(AddTimeWindowPacket.ID, ((payload, context) -> {
 			if (context.player().hasPermissionLevel(3)) {
 				PLAYTIME_CONFIG.timePeriods().add(payload.timePeriodString());
 				PLAYTIME_CONFIG.save();
+				PLAYTIME_TRACKER.reload();
 			}
 		}));
 		ServerPlayNetworking.registerGlobalReceiver(RequestTimezonePacket.ID, (payload, context) ->
