@@ -41,7 +41,6 @@ public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
                             String nextPeriod = timePeriod.startTime.format(DateTimeFormatter.ISO_LOCAL_TIME);
                             Duration untilNextPeriod = timePeriod.until(LocalTime.now());
 
-                            if (untilNextPeriod.toDays() >= 1) return Text.translatable("playtime.playtime.next_time_window_tomorrow", nextPeriod);
                             return Text.translatable("playtime.playtime.next_time_window", nextPeriod, untilNextPeriod.toHours(), untilNextPeriod.toMinutesPart(), untilNextPeriod.toSecondsPart());
                         })
                         .orElse(Text.translatable("playtime.playtime.no_time_windows")));

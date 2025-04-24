@@ -11,7 +11,6 @@
   "disconnect.playtime.overtime": "You have exceeded your max daily playtime today of %s ticks, the next window where time is not tracked is %s",
   "playtime.playtime.midnight_local_time": "Midnight for the server is at %s local time",
   "playtime.playtime.next_time_window": "The next time window is at %s, which is in %s hours, %s minutes, %s seconds",
-  "playtime.playtime.next_time_window_tomorrow": "The next time window is tomorrow, at %s",
   "playtime.playtime.no_time_windows": "There are no registered time windows, or your client has not yet synced them",
   "playtime.playtime.playtime": "You have logged %s hours, %s minutes, and %s seconds today!",
   "playtime.playtime.timewindows.add_new_button": "Add New",

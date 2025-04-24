@@ -23,7 +23,6 @@ public class EnUsLangProvider extends FabricLanguageProvider {
         translationBuilder.add("playtime.playtime.timewindows.end_time", "End Time");
         translationBuilder.add("playtime.playtime.next_time_window", "The next time window is at %s, which is in %s hours, %s minutes, %s seconds");
         translationBuilder.add("playtime.playtime.no_time_windows", "There are no registered time windows, or your client has not yet synced them");
-        translationBuilder.add("playtime.playtime.next_time_window_tomorrow", "The next time window is tomorrow, at %s");
         translationBuilder.add("playtime.playtime.midnight_local_time", "Midnight for the server is at %s local time");
         translationBuilder.add("playtime.playtime.playtime", "You have logged %s hours, %s minutes, and %s seconds today!");
 

@@ -22,7 +22,7 @@ public class TimePeriod {
     public Duration until(LocalTime time) {
         if (isWithin(time)) return Duration.ZERO;
         if (time.isBefore(startTime)) return Duration.between(time, startTime);
-        return Duration.of(time.until(LocalTime.MAX, ChronoUnit.SECONDS) + LocalTime.MIDNIGHT.until(time, ChronoUnit.SECONDS), ChronoUnit.SECONDS);
+        return Duration.of(time.until(LocalTime.MAX, ChronoUnit.SECONDS) + LocalTime.MIDNIGHT.until(startTime, ChronoUnit.SECONDS), ChronoUnit.SECONDS);
     }
 
     public String display() {
