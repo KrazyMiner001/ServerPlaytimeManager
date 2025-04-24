@@ -84,6 +84,10 @@ public class PlayerPlaytimeTracker extends PersistentState {
             cachedDate = LocalDate.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()));
         }
 
+        if (cachedDate.isAfter(LocalDate.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone())))) {
+            cachedDate = LocalDate.now(ZoneOffset.of(ServerPlaytimeManager.PLAYTIME_CONFIG.timezone()));
+        }
+
         server.getPlayerManager().getPlayerList().forEach(player -> {
             UUID uuid = player.getUuid();
             playerPlaytimes.putIfAbsent(uuid, 0);
