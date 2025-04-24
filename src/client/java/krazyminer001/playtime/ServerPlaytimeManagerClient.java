@@ -15,7 +15,6 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
 @SuppressWarnings("unused")
@@ -24,19 +23,18 @@ public class ServerPlaytimeManagerClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		UIParsing.registerFactory(IdentifierHelper.of("updatable-label"), element -> new UpdatableLabelComponent(Text::empty));
 
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("foo_client")
-				.executes(context -> {
-					MinecraftClient mc = MinecraftClient.getInstance();
-					Screen screen = new PlaytimeScreen();
-					mc.send(() -> mc.setScreen(screen));
-					return 1;
-				})
-				.then(ClientCommandManager.literal("admin")
-						.requires((source) -> source.hasPermissionLevel(3))
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("playerplaytime")
+				.then(ClientCommandManager.literal("client")
 						.executes(context -> {
-							MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new AdminPlaytimeScreen()));
+							MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new PlaytimeScreen()));
 							return 1;
 						})
+						.then(ClientCommandManager.literal("timewindows")
+								.executes(context -> {
+									MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new AdminPlaytimeScreen()));
+									return 1;
+								})
+						)
 				)
 		));
 
