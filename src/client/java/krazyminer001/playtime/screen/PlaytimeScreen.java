@@ -44,7 +44,7 @@ public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
                             if (untilNextPeriod.toDays() >= 1) return Text.translatable("playtime.playtime.next_time_window_tomorrow", nextPeriod);
                             return Text.translatable("playtime.playtime.next_time_window", nextPeriod, untilNextPeriod.toHours(), untilNextPeriod.toMinutesPart(), untilNextPeriod.toSecondsPart());
                         })
-                        .orElse(Text.empty()));
+                        .orElse(Text.translatable("playtime.playtime.no_time_windows")));
 
         rootComponent.childById(UpdatableLabelComponent.class, "midnight")
                 .text(() -> Text.translatable(
