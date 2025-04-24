@@ -3,6 +3,7 @@ package krazyminer001.playtime.screen;
 import io.wispforest.owo.ui.base.BaseUIModelScreen;
 import io.wispforest.owo.ui.container.FlowLayout;
 import krazyminer001.playtime.networking.RequestTimeWindowsPacket;
+import krazyminer001.playtime.networking.RequestTimezonePacket;
 import krazyminer001.playtime.networking.RequestUserPlaytimePacket;
 import krazyminer001.playtime.screen.component.UpdatableLabelComponent;
 import krazyminer001.playtime.time.TimePeriod;
@@ -26,6 +27,7 @@ public class PlaytimeScreen extends BaseUIModelScreen<FlowLayout> {
     protected void build(FlowLayout rootComponent) {
         ClientPlayNetworking.send(new RequestUserPlaytimePacket());
         ClientPlayNetworking.send(new RequestTimeWindowsPacket());
+        ClientPlayNetworking.send(new RequestTimezonePacket());
 
         rootComponent.childById(UpdatableLabelComponent.class, "playtime-counter")
                 .text(() -> {

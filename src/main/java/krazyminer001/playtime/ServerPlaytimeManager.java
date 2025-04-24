@@ -283,7 +283,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 				PLAYTIME_CONFIG.save();
 			}
 		}));
-		ServerPlayNetworking.registerGlobalReceiver(RemoveTimeWindowPacket.ID, (payload, context) ->
+		ServerPlayNetworking.registerGlobalReceiver(RequestTimezonePacket.ID, (payload, context) ->
 				context.responseSender().sendPacket(new SendTimezonePacket(ZoneOffset.of(PLAYTIME_CONFIG.timezone())))
 		);
 	}
