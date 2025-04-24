@@ -50,11 +50,12 @@ public class ServerPlaytimeManager implements ModInitializer {
 					.then(literal("query")
 							.executes(context -> {
 								if (!context.getSource().isExecutedByPlayer()) {
-									context.getSource().sendError(Text.translatable("commands.playtime.query.not_a_player"));
+									context.getSource().sendError(Text.translatableWithFallback("commands.playtime.query.not_a_player", "You must be a player or specify a player target to run this command"));
 									return 0;
 								}
 								assert context.getSource().getEntity() != null;
-								context.getSource().sendFeedback(() -> Text.translatable("commands.playtime.query.user_playtime", PLAYTIME_TRACKER.getPlaytime(context.getSource().getEntity().getUuid()).toSeconds()), false);
+								long seconds = PLAYTIME_TRACKER.getPlaytime(context.getSource().getEntity().getUuid()).toSeconds();
+								context.getSource().sendFeedback(() -> Text.translatableWithFallback("commands.playtime.query.user_playtime", "You have played: " + seconds +" seconds today", seconds), false);
 								return 1;
 							})
 							.then(argument("targets", GameProfileArgumentType.gameProfile())
@@ -64,7 +65,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 										gameProfiles.forEach(profile -> context
                                                 .getSource()
                                                 .sendFeedback(
-														() -> Text.translatable("commands.playtime.query.player_playtime", profile.getName(), PLAYTIME_TRACKER.getPlaytime(profile.getId()).toSeconds()),
+														() -> Text.translatableWithFallback("commands.playtime.query.player_playtime",  profile.getName() + " has played " + PLAYTIME_TRACKER.getPlaytime(profile.getId()).toSeconds() +" seconds today", profile.getName(), PLAYTIME_TRACKER.getPlaytime(profile.getId()).toSeconds()),
                                                         false
                                                 ));
 										return 1;
@@ -82,7 +83,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 												profiles.forEach(profile -> {
 													PLAYTIME_TRACKER.setPlaytime(profile.getId(), ticks);
 													context.getSource().sendFeedback(
-															() -> Text.translatable("commands.playtime.set.success", ticks, profile.getName()),
+															() -> Text.translatableWithFallback("commands.playtime.set.success", "Successfully set playtime to " + ticks + " ticks for player " + profile.getName(), ticks, profile.getName()),
 															true
 													);
 												});
@@ -111,6 +112,14 @@ public class ServerPlaytimeManager implements ModInitializer {
 													})
 											)
 									)
+									.then(literal("timezone")
+											.then(argument("timezone", StringArgumentType.string())
+													.executes(context -> {
+														PLAYTIME_CONFIG.timezone(StringArgumentType.getString(context, "timezone"));
+														return 1;
+													})
+											)
+									)
 							)
 							.then(literal("get")
 									.then(literal("maxTime")
@@ -119,11 +128,17 @@ public class ServerPlaytimeManager implements ModInitializer {
 												return 1;
 											})
 									)
+									.then(literal("timezone")
+											.executes(context -> {
+												context.getSource().sendFeedback(() -> Text.of(String.valueOf(PLAYTIME_CONFIG.timezone())), false);
+												return 1;
+											})
+									)
 							)
 							.then(literal("timewindows")
 									.then(literal("add")
-											.then(argument("startTime", StringArgumentType.word())
-													.then(argument("endTime", StringArgumentType.word())
+											.then(argument("startTime", StringArgumentType.string())
+													.then(argument("endTime", StringArgumentType.string())
 															.executes(context -> {
 																try {
 																	DateTimeFormatter.ISO_OFFSET_TIME.parse(StringArgumentType.getString(context, "startTime"));
@@ -131,7 +146,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	context
 																			.getSource()
 																			.sendFeedback(
-																					() -> Text.translatable("commands.playtime.timewindows.add.invalid_start_time", e.getMessage()),
+																					() -> Text.translatableWithFallback("commands.playtime.timewindows.add.invalid_start_time", "Invalid startTime: " + e.getMessage(), e.getMessage()),
 																					false
 																			);
 																	return 0;
@@ -142,7 +157,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	context
 																			.getSource()
 																			.sendFeedback(
-																					() -> Text.translatable("commands.playtime.timewindows.add.invalid_end_time", e.getMessage()),
+																					() -> Text.translatableWithFallback("commands.playtime.timewindows.add.invalid_end_time", "Invalid endTime:" + e.getMessage(), e.getMessage()),
 																					false
 																			);
 																	return 0;
@@ -163,8 +178,8 @@ public class ServerPlaytimeManager implements ModInitializer {
 											)
 									)
 									.then(literal("remove")
-											.then(argument("startTime", StringArgumentType.word())
-													.then(argument("endTime", StringArgumentType.word())
+											.then(argument("startTime", StringArgumentType.string())
+													.then(argument("endTime", StringArgumentType.string())
 															.executes(context -> {
 																final String startTime = StringArgumentType.getString(context, "startTime");
 																final String endTime = StringArgumentType.getString(context, "endTime");
@@ -175,7 +190,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	context
 																			.getSource()
 																			.sendFeedback(
-																					() -> Text.translatable("commands.playtime.timewindows.remove.invalid_start_time", e.getMessage()),
+																					() -> Text.translatableWithFallback("commands.playtime.timewindows.remove.invalid_start_time", "Invalid startTime: " + e.getMessage(), e.getMessage()),
 																					false
 																			);
 																	return 0;
@@ -186,7 +201,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	context
 																			.getSource()
 																			.sendFeedback(
-																					() -> Text.translatable("commands.playtime.timewindows.remove.invalid_start_time", e.getMessage()),
+																					() -> Text.translatable("commands.playtime.timewindows.remove.invalid_end_time", "Invalid endTime: " + e.getMessage(), e.getMessage()),
 																					false
 																			);
 																	return 0;
@@ -196,7 +211,7 @@ public class ServerPlaytimeManager implements ModInitializer {
 																	context
 																			.getSource()
 																			.sendFeedback(
-																					() -> Text.translatable("commands.playtime.timewindows.remove.non_existant_timewindow", startTime, endTime),
+																					() -> Text.translatableWithFallback("commands.playtime.timewindows.remove.non_existent_timewindow", "There is no period defined by startTime: " + startTime + " and endTime: " + endTime, startTime, endTime),
 																					false
 																			);
 																	return 0;

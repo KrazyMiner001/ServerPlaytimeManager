@@ -13,7 +13,7 @@ public class EnUsLangProvider extends FabricLanguageProvider {
 
     @Override
     public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
-        translationBuilder.add("disconnect.playtime.overtime", "You have exceeded your max daily playtime today of %s ticks, the next window where time is not tracked is %s");
+        translationBuilder.add("disconnect.playtime.overtime", "You have exceeded your max daily playtime today of %s ticks, the next window where time is not tracked is: %s");
         translationBuilder.add("playtime.playtime.timewindows.save_button", "Save");
         translationBuilder.add("playtime.playtime.timewindows.delete_button", "Delete");
         translationBuilder.add("playtime.playtime.timewindows.add_new_button", "Add New");
@@ -34,7 +34,7 @@ public class EnUsLangProvider extends FabricLanguageProvider {
         translationBuilder.add("commands.playtime.timewindows.add.invalid_end_time", "Invalid endTime: %s");
         translationBuilder.add("commands.playtime.timewindows.remove.invalid_start_time", "Invalid startTime: %s");
         translationBuilder.add("commands.playtime.timewindows.remove.invalid_end_time", "Invalid endTime: %s");
-        translationBuilder.add("commands.playtime.timewindows.remove.non_existant_timewindow", "There is no period defined by startTime: %s and endTime: %s");
+        translationBuilder.add("commands.playtime.timewindows.remove.non_existent_timewindow", "There is no period defined by startTime: %s and endTime: %s");
 
         translationBuilder.add("timeperiod.playtime.display", "startTime: %s, endTime: %s");
         translationBuilder.add("time.playtime.duration", "%s hours, %s minutes, %s seconds");
