@@ -26,19 +26,18 @@ public class ServerPlaytimeManagerClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		UIParsing.registerFactory(IdentifierHelper.of("updatable-label"), element -> new UpdatableLabelComponent(Text::empty));
 
-		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> dispatcher.register(ClientCommandManager.literal("playerplaytime")
-				.then(ClientCommandManager.literal("client")
-						.executes(context -> {
-							MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new PlaytimeScreen()));
-							return 1;
-						})
-						.then(ClientCommandManager.literal("timewindows")
-								.executes(context -> {
-									MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new AdminPlaytimeScreen()));
-									return 1;
-								})
-						)
-				)
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
+				dispatcher.register(ClientCommandManager.literal("playerplaytimeclient")
+					.executes(context -> {
+						MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new PlaytimeScreen()));
+						return 1;
+					})
+					.then(ClientCommandManager.literal("timewindows")
+							.executes(context -> {
+								MinecraftClient.getInstance().send(() -> MinecraftClient.getInstance().setScreen(new AdminPlaytimeScreen()));
+								return 1;
+							})
+					)
 		));
 
 		ClientTickEvents.END_WORLD_TICK.register((minecraftClient -> {
